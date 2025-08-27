@@ -11,7 +11,7 @@ import {
   downloadAsset,
   getAsset,
   getAssets,
-  uploadAssets,
+  // uploadAssets,
 } from "../apis/asset.api";
 
 export const useAssets = () => {
@@ -43,7 +43,7 @@ export const useUploadAssets = () => {
   const dispatch = useAppDispatch();
 
   return useMutation({
-    mutationFn: uploadAssets,
+    // mutationFn: uploadAssets,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ASSETS] });
       dispatch(

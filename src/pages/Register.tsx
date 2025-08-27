@@ -43,7 +43,7 @@ const Register: React.FC = () => {
 
     useEffect(() => {
         if (isAuthenticated) {
-            navigate('/dashboard');
+            navigate('/gallery');
         }
     }, [isAuthenticated, navigate]);
 
@@ -55,7 +55,7 @@ const Register: React.FC = () => {
                 password: data.password,
                 confirmPassword: data.confirmPassword
             })).unwrap();
-            // navigate('/dashboard');
+            // navigate('/gallery');
         } catch (error: any) {
             setError('root', {
                 message: error?.message || 'Registration failed. Please try again.',

@@ -14,7 +14,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 // Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
+// import Dashboard from './pages/Dashboard';
 import Gallery from './pages/Gallery';
 import Upload from './pages/Upload';
 import AssetDetails from './pages/AssetDetails';
@@ -52,8 +52,8 @@ function App() {
                     <Layout />
                   </ProtectedRoute>
                 }>
-                  <Route index element={<Navigate to="/dashboard" replace />} />
-                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route index element={<Navigate to="/gallery" replace />} />
+                  {/* <Route path="dashboard" element={<Dashboard />} /> */}
                   <Route path="gallery" element={<Gallery />} />
                   <Route path="upload" element={<Upload />} />
                   <Route path="asset/:id" element={<AssetDetails />} />
@@ -67,7 +67,7 @@ function App() {
                 </Route>
 
                 {/* Catch all route */}
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                <Route path="*" element={<Navigate to="/gallery" replace />} />
               </Routes>
             </div>
           </Router>

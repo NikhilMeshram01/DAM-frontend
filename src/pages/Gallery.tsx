@@ -52,7 +52,7 @@ const Gallery: React.FC = () => {
     const handleDownload = async (asset: Asset) => {
         try {
             await downloadMutation.mutateAsync(asset.id);
-        } catch (error) {
+        } catch (error: any) {
             dispatch(addToast({
                 type: 'error',
                 title: 'Download Failed',

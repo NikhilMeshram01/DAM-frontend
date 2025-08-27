@@ -1,4 +1,57 @@
 import type { Asset } from "../types";
+import api from "./api";
+
+// Types
+export interface PresignResponse {
+  url: string;
+  key: string;
+}
+
+export interface ConfirmUploadPayload {
+  key: string;
+  fileName: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  tags: string[];
+  category: string;
+}
+
+const API_BASE = "api/v1/storage";
+
+export const getPresignedUrl = async (
+  fileName: string
+): Promise<PresignResponse> => {
+  const response = await api.post(`${API_BASE}/presign`, { fileName });
+  return response.data;
+};
+
+export const confirmUpload = async (
+  payload: ConfirmUploadPayload
+): Promise<void> => {
+  await api.post(`${API_BASE}/confirm`, payload);
+};
+
+// export const uploadAssets = async (
+//   files: File[],
+//   onProgress?: (progress: number) => void
+// ): Promise<Asset[]> => {
+//   try {
+//     const res = await api.post(
+//       `${API_BASE}/login`,
+//       { email, password },
+//       { withCredentials: true }
+//     );
+//     if (!res.data?.data) {
+//       throw new Error("Invalid response from server");
+//     }
+//     return res.data.data as User;
+//   } catch (error: any) {
+//     throw new Error(error.response?.data?.message || "Failed to login");
+//   }
+
+//   return mockAssets;
+// };
 
 export const getAssets = async (
   page = 0,
@@ -70,41 +123,6 @@ export const getAsset = async (id: string): Promise<Asset> => {
   };
 
   return mockAsset;
-};
-
-export const uploadAssets = async (
-  files: File[],
-  onProgress?: (progress: number) => void
-): Promise<Asset[]> => {
-  // Mock upload with progress
-  for (let i = 0; i <= 100; i += 10) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    onProgress?.(i);
-  }
-
-  const mockAssets: Asset[] = files.map((file, index) => ({
-    id: Date.now().toString() + index,
-    filename: file.name,
-    originalName: file.name,
-    size: file.size,
-    mimeType: file.type,
-    type: file.type.startsWith("image/")
-      ? "image"
-      : file.type.startsWith("video/")
-      ? "video"
-      : file.type.startsWith("audio/")
-      ? "audio"
-      : "document",
-    url: URL.createObjectURL(file),
-    thumbnailUrl: URL.createObjectURL(file),
-    tags: [],
-    downloads: 0,
-    uploadedBy: "current-user",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }));
-
-  return mockAssets;
 };
 
 export const downloadAsset = async (id: string): Promise<void> => {

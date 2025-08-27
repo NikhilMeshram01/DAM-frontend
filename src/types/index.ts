@@ -34,6 +34,14 @@ export interface AuthState {
   isAuthenticated: boolean;
 }
 
+export interface UploadProgress {
+  id: string;
+  file: File;
+  progress: number;
+  status: "pending" | "uploading" | "completed" | "error";
+  error?: string;
+}
+
 export interface AssetState {
   filters: {
     type: string;
@@ -46,6 +54,8 @@ export interface AssetState {
   };
   selectedAsset: Asset | null;
   viewMode: "grid" | "list";
+  uploadProgress: UploadProgress[];
+  isUploading: boolean;
 }
 
 export interface UIState {

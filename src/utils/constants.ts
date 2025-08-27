@@ -19,7 +19,7 @@ export const SUPPORTED_FORMATS = [
 export const ROUTES = {
   LOGIN: "/login",
   REGISTER: "/register",
-  DASHBOARD: "/dashboard",
+  // DASHBOARD: "/dashboard",
   GALLERY: "/gallery",
   UPLOAD: "/upload",
   ADMIN: "/admin",

@@ -36,11 +36,11 @@ const Login: React.FC = () => {
         resolver: yupResolver(schema),
     });
 
-    const from = location.state?.from?.pathname || '/dashboard';
+    const from = location.state?.from?.pathname || '/gallery';
 
     useEffect(() => {
         if (isAuthenticated) {
-            navigate('/dashboard');
+            navigate('/gallery');
         }
     }, [isAuthenticated, navigate]);
 
