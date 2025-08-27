@@ -10,26 +10,28 @@ import {
     HardDrive
 } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../store';
-import { logout } from '../../store/slices/authSlice';
+import { logoutUser } from '../../store/slices/authSlice';
 import Button from '../ui/Button';
 
 const Sidebar: React.FC = () => {
+
     const { user } = useAppSelector(state => state.auth);
+
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        dispatch(logout());
+        dispatch(logoutUser());
         navigate('/login');
     };
 
     const navigation = [
-        { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+        // { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
         { name: 'Gallery', href: '/gallery', icon: Image },
         { name: 'Upload', href: '/upload', icon: Upload },
         ...(user?.role === 'admin' ? [
             { name: 'Admin', href: '/admin', icon: Settings },
-            { name: 'Users', href: '/users', icon: Users },
+            // { name: 'Users', href: '/users', icon: Users },
         ] : []),
     ];
 

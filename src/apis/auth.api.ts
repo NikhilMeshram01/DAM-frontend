@@ -10,10 +10,10 @@ export const login = async (email: string, password: string): Promise<User> => {
       { email, password },
       { withCredentials: true }
     );
-    if (!res.data?.user) {
+    if (!res.data?.data) {
       throw new Error("Invalid response from server");
     }
-    return res.data.user as User;
+    return res.data.data as User;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to login");
   }
@@ -26,16 +26,20 @@ export const register = async (
   confirmPassword: string
 ): Promise<User> => {
   try {
-    const userData = { name, email, password, confirmPassword };
-    const res = await api.post(`${API_BASE}/register`, userData, {
-      withCredentials: true,
-    });
-
-    if (!res.data?.user) {
+    const res = await api.post(
+      `${API_BASE}/register`,
+      { name, email, password, confirmPassword },
+      {
+        withCredentials: true,
+      }
+    );
+    if (!res.data?.data) {
       throw new Error("Invalid response from server");
     }
-
-    return res.data.user as User;
+    console.log(res);
+    console.log(res.data);
+    console.log(res.data.data);
+    return res.data.data as User;
   } catch (error: any) {
     throw new Error(
       error?.response?.data?.message || "Failed to register user"
@@ -43,7 +47,7 @@ export const register = async (
   }
 };
 
-export const logoutUser = async (): Promise<void> => {
+export const logout = async (): Promise<void> => {
   await api.post(`${API_BASE}/logout`, {}, { withCredentials: true });
 };
 

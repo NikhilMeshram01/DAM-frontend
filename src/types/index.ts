@@ -1,7 +1,7 @@
 export interface User {
-  token: string | null;
-  user: any;
   _id: string;
+  // token: string | null;
+  // user: any;
   email: string;
   name: string;
   role: "user" | "admin";
@@ -30,7 +30,6 @@ export interface Asset {
 
 export interface AuthState {
   user: User | null;
-  // token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
 }

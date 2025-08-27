@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -25,9 +25,12 @@ const schema = yup.object().shape({
 type FormData = yup.InferType<typeof schema>;
 
 const Register: React.FC = () => {
+
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+
     const { isLoading, isAuthenticated } = useAppSelector(state => state.auth);
+    console.log("isAuthenticated", isAuthenticated)
 
     const {
         register,
@@ -52,7 +55,7 @@ const Register: React.FC = () => {
                 password: data.password,
                 confirmPassword: data.confirmPassword
             })).unwrap();
-            navigate('/dashboard');
+            // navigate('/dashboard');
         } catch (error: any) {
             setError('root', {
                 message: error?.message || 'Registration failed. Please try again.',

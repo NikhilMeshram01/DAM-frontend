@@ -4,20 +4,19 @@ import {
   type PayloadAction,
 } from "@reduxjs/toolkit";
 import type { AuthState, User } from "../../types";
-import { register, login } from "../../apis/auth.api";
+import { register, login, logout } from "../../apis/auth.api";
 
 const initialState: AuthState = {
   user: null,
-  // token: localStorage.getItem("dam_token"),
   isLoading: false,
-  isAuthenticated: !!localStorage.getItem("dam_token"),
+  isAuthenticated: false,
 };
 
 export const loginUser = createAsyncThunk(
   "auth/login",
   async ({ email, password }: { email: string; password: string }) => {
     const response = await login(email, password);
-    // localStorage.setItem("dam_token", response.token);
+    console.log("response", response);
     return response;
   }
 );
@@ -36,21 +35,23 @@ export const registerUser = createAsyncThunk(
     confirmPassword: string;
   }) => {
     const response = await register(name, email, password, confirmPassword);
-    // localStorage.setItem("dam_token", response.token);
     return response;
   }
 );
+
+export const logoutUser = createAsyncThunk("auth/logout", async () => {
+  const response = await logout();
+  return response;
+});
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    logout: (state) => {
-      state.user = null;
-      // state.token = null;
-      state.isAuthenticated = false;
-      localStorage.removeItem("dam_token");
-    },
+    // logout: (state) => {
+    //   state.user = null;
+    //   state.isAuthenticated = false;
+    // },
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
       state.isAuthenticated = true;
@@ -66,14 +67,12 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload.user;
-        // state.token = action.payload.token;
+        state.user = action.payload;
         state.isAuthenticated = true;
       })
       .addCase(loginUser.rejected, (state) => {
         state.isLoading = false;
         state.user = null;
-        // state.token = null;
         state.isAuthenticated = false;
       })
       .addCase(registerUser.pending, (state) => {
@@ -81,18 +80,28 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload.user;
-        // state.token = action.payload.token;
+        state.user = action.payload;
+        console.log("action.payload", action.payload);
         state.isAuthenticated = true;
       })
       .addCase(registerUser.rejected, (state) => {
         state.isLoading = false;
         state.user = null;
-        // state.token = null;
         state.isAuthenticated = false;
+      })
+      .addCase(logoutUser.pending, (state, action) => {
+        state.isLoading = true;
+      })
+      .addCase(logoutUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+      })
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.isLoading = false;
       });
   },
 });
 
-export const { logout, setUser, clearError } = authSlice.actions;
+export const { setUser, clearError } = authSlice.actions;
 export default authSlice.reducer;
