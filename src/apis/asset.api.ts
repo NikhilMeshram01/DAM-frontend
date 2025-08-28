@@ -53,52 +53,50 @@ export const confirmUpload = async (
 //   return mockAssets;
 // };
 
+// import axios from "../utils/axiosInstance"; // adjust path
+// import { Asset } from "../types"; // adjust to your type location
+
+interface GetAssetsResponse {
+  page: number;
+  assets: Asset[];
+  hasMore: boolean;
+  total: number;
+}
+
 export const getAssets = async (
   page = 0,
-  filters: any = {}
-): Promise<{ assets: Asset[]; hasMore: boolean; total: number }> => {
-  // Mock implementation with realistic data
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  filters: Record<string, any> = {}
+): Promise<GetAssetsResponse> => {
+  console.log("hit");
+  const limit = 20;
+  const params = new URLSearchParams();
 
-  const mockAssets: Asset[] = Array.from({ length: 20 }, (_, i) => {
-    const id = (page * 20 + i + 1).toString();
-    const types = ["image", "video", "document", "audio"];
-    const type = types[
-      Math.floor(Math.random() * types.length)
-    ] as Asset["type"];
+  // Backend expects 1-based page indexing
+  params.set("page", (page + 1).toString());
+  params.set("limit", limit.toString());
 
-    return {
-      id,
-      filename: `asset-${id}.${
-        type === "image"
-          ? "jpg"
-          : type === "video"
-          ? "mp4"
-          : type === "document"
-          ? "pdf"
-          : "mp3"
-      }`,
-      originalName: `Sample ${type} ${id}`,
-      size: Math.floor(Math.random() * 10000000) + 100000,
-      mimeType: `${type}/${type === "image" ? "jpeg" : type}`,
-      type,
-      url: `https://picsum.photos/400/300?random=${id}`,
-      thumbnailUrl: `https://picsum.photos/200/150?random=${id}`,
-      tags: ["sample", "demo", type],
-      downloads: Math.floor(Math.random() * 100),
-      uploadedBy: "user@dam.com",
-      createdAt: new Date(
-        Date.now() - Math.random() * 10000000000
-      ).toISOString(),
-      updatedAt: new Date().toISOString(),
-      dimensions: type === "image" ? { width: 1920, height: 1080 } : undefined,
-    };
+  for (const key in filters) {
+    if (filters[key] != null) {
+      if (Array.isArray(filters[key])) {
+        filters[key].forEach((val) => params.append(key, val));
+      } else {
+        params.set(key, filters[key]);
+      }
+    }
+  }
+  console.log(params);
+
+  const response = await api.get("/api/v1/asset/assets", {
+    params,
   });
 
+  const data = response.data;
+
   return {
-    assets: mockAssets,
-    hasMore: page < 4, // Mock pagination
-    total: 100,
+    page: data.pagination.page, // add this line
+    assets: data.data.assets,
+    hasMore: data.pagination.page < data.pagination.pages,
+    total: data.pagination.total,
   };
 };
 
@@ -106,20 +104,20 @@ export const getAsset = async (id: string): Promise<Asset> => {
   await new Promise((resolve) => setTimeout(resolve, 300));
 
   const mockAsset: Asset = {
-    id,
-    filename: `asset-${id}.jpg`,
-    originalName: `Sample Image ${id}`,
-    size: 2500000,
-    mimeType: "image/jpeg",
-    type: "image",
-    url: `https://picsum.photos/800/600?random=${id}`,
-    thumbnailUrl: `https://picsum.photos/200/150?random=${id}`,
-    tags: ["sample", "demo", "image"],
-    downloads: Math.floor(Math.random() * 100),
-    uploadedBy: "user@dam.com",
-    createdAt: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
-    updatedAt: new Date().toISOString(),
-    dimensions: { width: 1920, height: 1080 },
+    // id,
+    // filename: `asset-${id}.jpg`,
+    // originalName: `Sample Image ${id}`,
+    // size: 2500000,
+    // mimeType: "image/jpeg",
+    // category: "image",
+    // url: `https://picsum.photos/800/600?random=${id}`,
+    // thumbnailUrl: `https://picsum.photos/200/150?random=${id}`,
+    // tags: ["sample", "demo", "image"],
+    // downloads: Math.floor(Math.random() * 100),
+    // uploadedBy: "user@dam.com",
+    // createdAt: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
+    // updatedAt: new Date().toISOString(),
+    // dimensions: { width: 1920, height: 1080 },
   };
 
   return mockAsset;

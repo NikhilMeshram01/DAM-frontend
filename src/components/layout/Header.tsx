@@ -1,33 +1,16 @@
 import React from 'react';
-import { Search, Bell, User } from 'lucide-react';
-import { useAppSelector, useAppDispatch } from '../../store';
-import { setSearch } from '../../store/slices/assetSlice';
-import Input from '../ui/Input';
+import { Bell, User } from 'lucide-react';
+import { useAppSelector } from '../../store';
 import Button from '../ui/Button';
 
 const Header: React.FC = () => {
-    const { user } = useAppSelector(state => state.auth);
-    const { search } = useAppSelector(state => state.asset.filters);
-    const dispatch = useAppDispatch();
-
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        dispatch(setSearch(e.target.value));
-    };
+    const { user } = useAppSelector(state => state.auth)
 
     return (
         <header className="bg-white shadow-sm border-b border-gray-200">
             <div className="flex items-center justify-between px-6 py-4">
-                {/* Search */}
-                <div className="flex-1 max-w-md">
-                    <Input
-                        type="search"
-                        placeholder="Search assets..."
-                        value={search}
-                        onChange={handleSearchChange}
-                        leftIcon={<Search className="w-5 h-5" />}
-                        className="bg-gray-50 border-gray-200"
-                    />
-                </div>
+                {/* space */}
+                <div className="flex-1 max-w-md"></div>
 
                 {/* Actions */}
                 <div className="flex items-center space-x-4">

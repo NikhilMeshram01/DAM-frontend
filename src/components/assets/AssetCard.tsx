@@ -18,6 +18,7 @@ const AssetCard: React.FC<AssetCardProps> = ({
     onDownload,
     onShare
 }) => {
+    console.log(asset.versions.thumbnail)
     const getTypeIcon = (type: string) => {
         switch (type) {
             case 'video': return <Video className="w-4 h-4" />;
@@ -27,12 +28,13 @@ const AssetCard: React.FC<AssetCardProps> = ({
         }
     };
 
+
     const renderThumbnail = () => {
-        if (asset.type === 'image' && asset.thumbnailUrl) {
+        if (asset.category === 'image' && asset.versions?.thumbnail) {
             return (
                 <img
-                    src={asset.thumbnailUrl}
-                    alt={asset.filename}
+                    src={asset.versions.thumbnail}
+                    alt={asset.originalName}
                     className="w-full h-48 object-cover"
                 />
             );
@@ -41,8 +43,8 @@ const AssetCard: React.FC<AssetCardProps> = ({
         return (
             <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
                 <div className="text-center">
-                    {getTypeIcon(asset.type) || <FileText className="w-12 h-12 text-gray-400 mx-auto mb-2" />}
-                    <p className="text-sm text-gray-500">{asset.type.toUpperCase()}</p>
+                    {getTypeIcon(asset.category) || <FileText className="w-12 h-12 text-gray-400 mx-auto mb-2" />}
+                    <p className="text-sm text-gray-500">{asset.category?.toUpperCase()}</p>
                 </div>
             </div>
         );

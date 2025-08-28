@@ -1,12 +1,12 @@
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useEffect, useState } from 'react';
+// import { useQuery } from '@tanstack/react-query';
 import {
-    Users,
+    // Users,
     HardDrive,
     Download,
     Upload,
     TrendingUp,
-    Eye,
+    // Eye,
     Image,
     Video,
     FileText,
@@ -14,71 +14,113 @@ import {
 } from 'lucide-react';
 // import { adminApi } from '../services/api';
 import Card from '../components/ui/Card';
-import { AssetCardSkeleton } from '../components/ui/Skeleton';
-import { formatFileSize } from '../utils/helpers';
-import { QUERY_KEYS } from '../utils/constants';
+import { getStats } from '../apis/admin.api';
+// import { AssetCardSkeleton } from '../components/ui/Skeleton';
+// import { formatFileSize } from '../utils/helpers';
+// import { QUERY_KEYS } from '../utils/constants';
+
+type Activity =
+    {
+        action: string,
+        asset: string,
+        time: string,
+        user: string
+    }
+
+type Stats = {
+    totalAssets: number;
+    totalUploads: number;
+    totalDownloads: number;
+    storageUsed: number;
+    recentUploads: any[]; // Replace `any` with proper asset type if available
+    popularAssets: any[];
+    totalStorageGB: number;
+    assetTypes: {
+        document: string | 0;
+        image: string | 0
+        video: string | 0
+        audio: string | 0
+    },
+    recentActivity: Activity[],
+    todaysDownloads: number
+};
 
 const AdminDashboard: React.FC = () => {
 
-    // const { data: stats, isLoading } = useQuery({
-    //     queryKey: [QUERY_KEYS.ADMIN_STATS],
-    //     queryFn: adminApi.getStats,
-    // });
+    const [stats, setStats] = useState<Stats>()
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const data = await getStats();
+                setStats(data);
+            } catch (error) {
+                console.error("Failed to fetch stats:", error);
+            }
+        };
 
-    const stats = {
-        totalAssets: 1250,
-        totalUploads: 850,
-        totalDownloads: 5420,
-        storageUsed: 15.6, // GB
-        recentUploads: [],
-        popularAssets: [],
-    }
+        fetchStats();
+    }, []);
+    console.log(stats?.totalStorageGB)
 
     const statsCards = [
         {
             title: 'Total Assets',
-            value: stats?.totalAssets.toLocaleString() || '0',
+            value: stats?.totalAssets?.toLocaleString() || '0',
             icon: Image,
             color: 'bg-blue-500',
             change: '+12.5%'
         },
         {
-            title: 'Total Uploads',
-            value: stats?.totalUploads.toLocaleString() || '0',
+            title: "Today's Downloads",
+            value: stats?.todaysDownloads?.toLocaleString() || '0',
             icon: Upload,
             color: 'bg-green-500',
             change: '+8.2%'
         },
         {
             title: 'Total Downloads',
-            value: stats?.totalDownloads.toLocaleString() || '0',
+            value: stats?.totalDownloads?.toLocaleString() || '0',
             icon: Download,
             color: 'bg-purple-500',
             change: '+15.7%'
         },
         {
             title: 'Storage Used',
-            value: stats ? `${stats.storageUsed} GB` : '0 GB',
+            value: stats ? `${stats?.totalStorageGB.toFixed(2)} GB` : '0 GB',
             icon: HardDrive,
             color: 'bg-orange-500',
             change: '+2.1 GB'
         }
     ];
 
+    const assetCounts = {
+        image: Number(stats?.assetTypes?.image || 0),
+        video: Number(stats?.assetTypes?.video || 0),
+        document: Number(stats?.assetTypes?.document) || 0,
+        audio: Number(stats?.assetTypes?.audio) || 0
+    };
+    const totalAssetTypeCount = Object.values(assetCounts).reduce((sum, count) => sum + count, 0);
+
+    const getPercentage = (count: number) =>
+        totalAssetTypeCount > 0 ? Math.round((count / totalAssetTypeCount) * 100) : 0;
+
+
     const assetTypeData = [
-        { type: 'Images', count: 485, percentage: 65, icon: Image, color: 'bg-blue-500' },
-        { type: 'Videos', count: 142, percentage: 19, icon: Video, color: 'bg-green-500' },
-        { type: 'Documents', count: 98, percentage: 13, icon: FileText, color: 'bg-yellow-500' },
-        { type: 'Audio', count: 23, percentage: 3, icon: Music, color: 'bg-purple-500' }
+        { type: 'Images', count: stats?.assetTypes?.image || 0, percentage: getPercentage(assetCounts.image), icon: Image, color: 'bg-blue-500' },
+        { type: 'Videos', count: stats?.assetTypes?.video || 0, percentage: getPercentage(assetCounts.video), icon: Video, color: 'bg-green-500' },
+        { type: 'Documents', count: stats?.assetTypes?.document || 0, percentage: getPercentage(assetCounts.document), icon: FileText, color: 'bg-yellow-500' },
+        { type: 'Audio', count: stats?.assetTypes?.audio || 0, percentage: getPercentage(assetCounts.audio), icon: Music, color: 'bg-purple-500' }
     ];
 
-    const recentActivity = [
-        { action: 'Upload', user: 'john.doe@company.com', asset: 'Product_Image_001.jpg', time: '2 minutes ago' },
-        { action: 'Download', user: 'jane.smith@company.com', asset: 'Marketing_Video.mp4', time: '15 minutes ago' },
-        { action: 'Upload', user: 'mike.johnson@company.com', asset: 'Brand_Guidelines.pdf', time: '1 hour ago' },
-        { action: 'Download', user: 'sarah.wilson@company.com', asset: 'Logo_Final.svg', time: '2 hours ago' },
-        { action: 'Upload', user: 'david.brown@company.com', asset: 'Presentation.pptx', time: '3 hours ago' }
-    ];
+    const recentActivityData = stats?.recentActivity.map((item, i) => {
+        return {
+            action: item?.action,
+            user: item?.user,
+            asset: item?.asset,
+            time: item?.time
+        }
+    })
+    console.log(recentActivityData)
 
     // if (isLoading) {
     //     return (
@@ -179,14 +221,15 @@ const AdminDashboard: React.FC = () => {
                                         stroke="currentColor"
                                         strokeWidth="8"
                                         fill="transparent"
-                                        strokeDasharray={`${(stats?.storageUsed || 0) * 2.51} 251.33`}
+                                        strokeDasharray={`${Math.min((stats?.totalStorageGB || 0) / 1 * 251.33, 251.33)} 251.33`}
+                                        // strokeDasharray={`${(stats?.totalStorageGB || 0) * 2.51} 251.33`}
                                         className="text-[#670D2F]"
                                     />
                                 </svg>
                                 <div className="absolute inset-0 flex items-center justify-center">
                                     <div className="text-center">
-                                        <div className="text-2xl font-bold text-gray-900">{stats?.storageUsed}GB</div>
-                                        <div className="text-sm text-gray-500">of 100GB</div>
+                                        <div className="text-2xl font-bold text-gray-900">{stats?.totalStorageGB.toFixed(2)}GB</div>
+                                        <div className="text-sm text-gray-500">of 1GB</div>
                                     </div>
                                 </div>
                             </div>
@@ -227,7 +270,7 @@ const AdminDashboard: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {recentActivity.map((activity, index) => (
+                            {recentActivityData && recentActivityData.map((activity, index) => (
                                 <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
                                     <td className="py-3 px-4">
                                         <div className="flex items-center">

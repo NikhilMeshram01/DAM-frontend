@@ -14,7 +14,7 @@ export interface Asset {
   originalName: string;
   size: number;
   mimeType: string;
-  type: "image" | "video" | "document" | "audio";
+  category: "image" | "video" | "audio" | "document" | "archive" | "other";
   url: string;
   thumbnailUrl?: string;
   tags: string[];
@@ -25,6 +25,10 @@ export interface Asset {
   dimensions?: {
     width: number;
     height: number;
+  };
+  versions: {
+    original: string;
+    thumbnail: string;
   };
 }
 
@@ -43,15 +47,24 @@ export interface UploadProgress {
 }
 
 export interface AssetState {
-  filters: {
-    type: string;
-    tags: string[];
-    dateRange: {
-      start: string;
-      end: string;
-    } | null;
-    search: string;
-  };
+  // filters: {
+  //   type: string;
+  //   // tags: string[];
+  //   // dateRange: {
+  //   //   start: string;
+  //   //   end: string;
+  //   // } | null;
+  //   search: string;
+  // };
+  type: string;
+  search: string;
+  assets: Asset[];
+  hasMore: boolean;
+  total: number;
+  page: number;
+  isError: any;
+  isLoading: boolean;
+  isLoadingMore: boolean;
   selectedAsset: Asset | null;
   viewMode: "grid" | "list";
   uploadProgress: UploadProgress[];

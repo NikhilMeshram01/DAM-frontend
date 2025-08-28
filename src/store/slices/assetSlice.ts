@@ -4,21 +4,55 @@ import {
   type PayloadAction,
 } from "@reduxjs/toolkit";
 import type { AssetState, Asset } from "../../types";
-import { confirmUpload, getPresignedUrl } from "../../apis/asset.api";
+import {
+  confirmUpload,
+  getAssets,
+  getPresignedUrl,
+} from "../../apis/asset.api";
+import type { RootState } from "..";
 
 const initialState: AssetState = {
   uploadProgress: [],
   isUploading: false,
-  filters: {
-    type: "",
-    tags: [],
-    dateRange: null,
-    search: "",
-  },
+  type: "",
+  search: "",
+  // filters: {
+  //   type: "",
+  //   // tags: [],
+  //   // dateRange: null,
+  //   search: "",
+  // },
+  assets: [],
+  page: 0,
+  isError: null,
+  isLoading: true,
+  isLoadingMore: false,
+  hasMore: true, // ⬅️ NEW
+  total: 0, // ⬅️ NEW
   selectedAsset: null,
   viewMode: "grid",
 };
 
+function getCategoryFromMimeType(mimeType: string): string {
+  const type = mimeType.split("/")[0];
+  if (["image", "video", "audio"].includes(type)) return type;
+
+  if (type === "application") {
+    if (
+      mimeType === "application/pdf" ||
+      mimeType.includes("word") ||
+      mimeType.includes("excel") ||
+      mimeType.includes("presentation")
+    ) {
+      return "document";
+    }
+    if (mimeType.includes("zip") || mimeType.includes("rar")) {
+      return "archive";
+    }
+  }
+
+  return "other";
+}
 export const uploadAssets = createAsyncThunk<
   void,
   {
@@ -83,47 +117,70 @@ export const uploadAssets = createAsyncThunk<
   }
 );
 
-function getCategoryFromMimeType(mimeType: string): string {
-  const type = mimeType.split("/")[0];
-  if (["image", "video", "audio"].includes(type)) return type;
+// export const fetchAssets = createAsyncThunk(
+//   "asset/getAssets",
+//   async (page: number, { getState }) => {
+//     const state = getState() as RootState;
+//     const filters = state.asset.filters;
 
-  if (type === "application") {
-    if (
-      mimeType === "application/pdf" ||
-      mimeType.includes("word") ||
-      mimeType.includes("excel") ||
-      mimeType.includes("presentation")
-    ) {
-      return "document";
+//     const res = await getAssets(page, filters);
+//     return res;
+//   }
+// );
+export const fetchAssets = createAsyncThunk(
+  "asset/getAssets",
+  async (page: number, { getState }) => {
+    const state = getState() as RootState;
+
+    // Build filters object from slice state
+    const filters: Record<string, any> = {};
+
+    if (state.asset.type) {
+      filters.type = state.asset.type;
     }
-    if (mimeType.includes("zip") || mimeType.includes("rar")) {
-      return "archive";
+    if (state.asset.search) {
+      filters.search = state.asset.search;
     }
+
+    const res = await getAssets(page, filters);
+    return res;
   }
+);
 
-  return "other";
-}
-
-export const getAssets = createAsyncThunk("asset/getAssets", async () => {});
 export const getAsset = createAsyncThunk("asset/getAsset", async () => {});
 
 const assetSlice = createSlice({
   name: "asset",
   initialState,
   reducers: {
-    setFilters: (
-      state,
-      action: PayloadAction<Partial<AssetState["filters"]>>
-    ) => {
-      state.filters = { ...state.filters, ...action.payload };
+    // setFilters: (
+    //   state,
+    //   action: PayloadAction<Partial<AssetState["filters"]>>
+    // ) => {
+    //   state.filters = { ...state.filters, ...action.payload };
+    //   state.page = 0;
+    //   state.assets = [];
+    //   state.hasMore = true;
+    // },
+    // clearFilters: (state) => {
+    //   state.filters = {
+    //     type: "",
+    //     // tags: [],
+    //     // dateRange: null,
+    //     search: "",
+    //   };
+    // },
+    setTypes: (state, action) => {
+      state.type = action.payload;
     },
-    clearFilters: (state) => {
-      state.filters = {
-        type: "",
-        tags: [],
-        dateRange: null,
-        search: "",
-      };
+    clearTypes: (state, action) => {
+      state.type = "";
+    },
+    setSearch: (state, action) => {
+      state.search = action.payload;
+    },
+    clearSearch: (state, action) => {
+      state.search = "";
     },
     setSelectedAsset: (state, action: PayloadAction<Asset | null>) => {
       state.selectedAsset = action.payload;
@@ -131,19 +188,16 @@ const assetSlice = createSlice({
     setViewMode: (state, action: PayloadAction<"grid" | "list">) => {
       state.viewMode = action.payload;
     },
-    setSearch: (state, action: PayloadAction<string>) => {
-      state.filters.search = action.payload;
-    },
-    addTag: (state, action: PayloadAction<string>) => {
-      if (!state.filters.tags.includes(action.payload)) {
-        state.filters.tags.push(action.payload);
-      }
-    },
-    removeTag: (state, action: PayloadAction<string>) => {
-      state.filters.tags = state.filters.tags.filter(
-        (tag) => tag !== action.payload
-      );
-    },
+    // addTag: (state, action: PayloadAction<string>) => {
+    //   if (!state.filters.tags.includes(action.payload)) {
+    //     state.filters.tags.push(action.payload);
+    //   }
+    // },
+    // removeTag: (state, action: PayloadAction<string>) => {
+    //   state.filters.tags = state.filters.tags.filter(
+    //     (tag) => tag !== action.payload
+    //   );
+    // },
   },
   extraReducers: (builder) => {
     builder
@@ -156,14 +210,32 @@ const assetSlice = createSlice({
       .addCase(uploadAssets.rejected, (state, action) => {
         state.isUploading = false;
       })
-      .addCase(getAssets.pending, (state, action) => {
-        state.isUploading = true;
+      .addCase(fetchAssets.pending, (state, action) => {
+        if (state.page === 0) {
+          state.isLoading = true;
+        } else {
+          state.isLoadingMore = true;
+        }
       })
-      .addCase(getAssets.fulfilled, (state, action) => {
-        state.isUploading = false;
+      .addCase(fetchAssets.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isLoadingMore = false;
+        state.hasMore = action.payload.hasMore;
+        state.page = action.payload.page; // Use page from API response
+        state.total = action.payload.total;
+
+        if (action.meta.arg === 0) {
+          // If fetching page 0, replace assets
+          state.assets = action.payload.assets;
+        } else {
+          // Append for next pages
+          state.assets = [...state.assets, ...action.payload.assets];
+        }
       })
-      .addCase(getAssets.rejected, (state, action) => {
-        state.isUploading = false;
+      .addCase(fetchAssets.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isLoadingMore = false;
+        state.isError = action.error.message || "Failed to fetch assets";
       })
       .addCase(getAsset.pending, (state, action) => {
         state.isUploading = true;
@@ -178,13 +250,16 @@ const assetSlice = createSlice({
 });
 
 export const {
-  setFilters,
-  clearFilters,
+  // setFilters,
+  // clearFilters,
   setSelectedAsset,
   setViewMode,
   setSearch,
-  addTag,
-  removeTag,
+  setTypes,
+  clearTypes,
+  clearSearch,
+  // addTag,
+  // removeTag,
 } = assetSlice.actions;
 
 export default assetSlice.reducer;
