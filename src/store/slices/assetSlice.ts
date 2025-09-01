@@ -14,14 +14,8 @@ import type { RootState } from "..";
 const initialState: AssetState = {
   uploadProgress: [],
   isUploading: false,
-  type: "",
+  category: "",
   search: "",
-  // filters: {
-  //   type: "",
-  //   // tags: [],
-  //   // dateRange: null,
-  //   search: "",
-  // },
   assets: [],
   page: 0,
   isError: null,
@@ -117,31 +111,20 @@ export const uploadAssets = createAsyncThunk<
   }
 );
 
-// export const fetchAssets = createAsyncThunk(
-//   "asset/getAssets",
-//   async (page: number, { getState }) => {
-//     const state = getState() as RootState;
-//     const filters = state.asset.filters;
-
-//     const res = await getAssets(page, filters);
-//     return res;
-//   }
-// );
 export const fetchAssets = createAsyncThunk(
   "asset/getAssets",
   async (page: number, { getState }) => {
     const state = getState() as RootState;
-
     // Build filters object from slice state
     const filters: Record<string, any> = {};
 
-    if (state.asset.type) {
-      filters.type = state.asset.type;
+    if (state.asset) {
+      filters.category = state.asset.category;
     }
     if (state.asset.search) {
       filters.search = state.asset.search;
     }
-
+    console.log(filters);
     const res = await getAssets(page, filters);
     return res;
   }
@@ -171,10 +154,10 @@ const assetSlice = createSlice({
     //   };
     // },
     setTypes: (state, action) => {
-      state.type = action.payload;
+      state.category = action.payload;
     },
     clearTypes: (state, action) => {
-      state.type = "";
+      state.category = "";
     },
     setSearch: (state, action) => {
       state.search = action.payload;

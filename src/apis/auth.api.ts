@@ -23,12 +23,14 @@ export const register = async (
   name: string,
   email: string,
   password: string,
-  confirmPassword: string
+  confirmPassword: string,
+  team: string
 ): Promise<User> => {
   try {
+    console.log("hit register", team);
     const res = await api.post(
       `${API_BASE}/register`,
-      { name, email, password, confirmPassword },
+      { name, email, password, confirmPassword, team },
       {
         withCredentials: true,
       }

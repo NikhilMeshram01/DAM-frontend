@@ -9,7 +9,8 @@ export interface User {
 }
 
 export interface Asset {
-  id: string;
+  _id: string;
+  team: string;
   filename: string;
   originalName: string;
   size: number;
@@ -18,7 +19,10 @@ export interface Asset {
   url: string;
   thumbnailUrl?: string;
   tags: string[];
-  downloads: number;
+  downloadCount: number;
+  uploader: {
+    email: string;
+  };
   uploadedBy: string;
   createdAt: string;
   updatedAt: string;
@@ -27,6 +31,10 @@ export interface Asset {
     height: number;
   };
   versions: {
+    original: string;
+    thumbnail: string;
+  };
+  downloadUrl: {
     original: string;
     thumbnail: string;
   };
@@ -56,7 +64,7 @@ export interface AssetState {
   //   // } | null;
   //   search: string;
   // };
-  type: string;
+  // type: string;
   search: string;
   assets: Asset[];
   hasMore: boolean;
@@ -69,6 +77,7 @@ export interface AssetState {
   viewMode: "grid" | "list";
   uploadProgress: UploadProgress[];
   isUploading: boolean;
+  category: string;
 }
 
 export interface UIState {

@@ -18,7 +18,7 @@ const AssetCard: React.FC<AssetCardProps> = ({
     onDownload,
     onShare
 }) => {
-    console.log(asset.versions.thumbnail)
+    console.log(asset)
     const getTypeIcon = (type: string) => {
         switch (type) {
             case 'video': return <Video className="w-4 h-4" />;
@@ -28,12 +28,29 @@ const AssetCard: React.FC<AssetCardProps> = ({
         }
     };
 
-
     const renderThumbnail = () => {
-        if (asset.category === 'image' && asset.versions?.thumbnail) {
+        if (asset.category === 'image' && asset.downloadUrl?.original) {
             return (
                 <img
-                    src={asset.versions.thumbnail}
+                    src={asset.downloadUrl.original}
+                    alt={asset.originalName}
+                    className="w-full h-48 object-cover"
+                />
+            );
+        }
+        if (asset.category === 'video' && asset.downloadUrl?.thumbnail) {
+            return (
+                <img
+                    src={asset.downloadUrl.thumbnail}
+                    alt={asset.originalName}
+                    className="w-full h-48 object-cover"
+                />
+            );
+        }
+        if (asset.category === 'document' && asset.downloadUrl?.thumbnail) {
+            return (
+                <img
+                    src={asset.downloadUrl.thumbnail}
                     alt={asset.originalName}
                     className="w-full h-48 object-cover"
                 />
@@ -90,10 +107,16 @@ const AssetCard: React.FC<AssetCardProps> = ({
                     </div>
                 )}
 
+                {/* uploaded by */}
+                <h3 className=" text-gray-900">
+                    <span className='text-sm'>by : </span>
+                    <span className='text-sm'>{asset.uploader.email}</span>
+                </h3>
+
                 {/* Actions */}
                 <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-500">
-                        {asset.downloads} downloads
+                        {asset.downloadCount} downloads
                     </span>
 
                     <div className="flex space-x-1">

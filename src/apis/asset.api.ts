@@ -67,7 +67,7 @@ export const getAssets = async (
   page = 0,
   filters: Record<string, any> = {}
 ): Promise<GetAssetsResponse> => {
-  console.log("hit");
+  console.log("filters", filters);
   const limit = 20;
   const params = new URLSearchParams();
 
@@ -89,6 +89,7 @@ export const getAssets = async (
   const response = await api.get("/api/v1/asset/assets", {
     params,
   });
+  console.log("response", response);
 
   const data = response.data;
 
@@ -123,8 +124,25 @@ export const getAsset = async (id: string): Promise<Asset> => {
   return mockAsset;
 };
 
-export const downloadAsset = async (id: string): Promise<void> => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  // Mock download - would normally trigger file download
-  console.log(`Downloading asset ${id}`);
+export const downloadAsset = async (
+  id: string,
+  originalName?: string
+): Promise<void> => {
+  try {
+    const { data } = await api.get(`/api/v1/storage/${id}/download`);
+    const { url } = data;
+
+    if (!url) throw new Error("No download URL received");
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = originalName || "download"; // This hints the browser to download
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error("Download failed:", error);
+    throw error;
+  }
 };

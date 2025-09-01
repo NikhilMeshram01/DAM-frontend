@@ -20,6 +20,7 @@ const schema = yup.object().shape({
         .string()
         .oneOf([yup.ref('password')], 'Passwords do not match')
         .required('Please confirm your password'),
+    team: yup.string().required('team is required')
 });
 
 type FormData = yup.InferType<typeof schema>;
@@ -49,11 +50,13 @@ const Register: React.FC = () => {
 
     const onSubmit = async (data: FormData) => {
         try {
+            console.log('team', data.team)
             await dispatch(registerUser({
                 name: data.name,
                 email: data.email,
                 password: data.password,
-                confirmPassword: data.confirmPassword
+                confirmPassword: data.confirmPassword,
+                team: data.team
             })).unwrap();
             // navigate('/gallery');
         } catch (error: any) {
@@ -123,6 +126,30 @@ const Register: React.FC = () => {
                                 error={errors.confirmPassword?.message}
                                 {...register('confirmPassword')}
                             />
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Team</label>
+                                <select
+                                    {...register('team')}
+                                    className={`w-full px-3 py-2 border ${errors.team ? 'border-red-500' : 'border-gray-300'
+                                        } rounded-lg focus:outline-none focus:ring-2 focus:ring-[#670D2F]`}
+                                    defaultValue=""
+                                >
+                                    <option value="" disabled>
+                                        Select a team
+                                    </option>
+                                    <option value="DevOps">DevOps</option>
+                                    <option value="Frontend">Frontend</option>
+                                    <option value="Backend">Backend</option>
+                                    <option value="Testing">Testing</option>
+                                    <option value="HR">HR</option>
+                                    <option value="Finance">Finance</option>
+                                </select>
+                                {errors.team && (
+                                    <p className="mt-1 text-sm text-red-600">{errors.team.message}</p>
+                                )}
+                            </div>
+
                         </div>
 
                         <Button type="submit" isLoading={isLoading} fullWidth size="lg">

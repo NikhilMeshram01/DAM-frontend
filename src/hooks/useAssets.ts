@@ -14,19 +14,19 @@ import {
   // uploadAssets,
 } from "../apis/asset.api";
 
-export const useAssets = () => {
-  const filters = useAppSelector((state) => state.asset.filters);
-  const dispatch = useAppDispatch();
+// export const useAssets = () => {
+//   const filters = useAppSelector((state) => state.asset.filters);
+//   const dispatch = useAppDispatch();
 
-  return useInfiniteQuery({
-    queryKey: [QUERY_KEYS.ASSETS, filters],
-    queryFn: ({ pageParam = 0 }) => getAssets(pageParam, filters),
-    getNextPageParam: (lastPage, pages) => {
-      return lastPage.hasMore ? pages.length : undefined;
-    },
-    initialPageParam: 0,
-  });
-};
+//   return useInfiniteQuery({
+//     queryKey: [QUERY_KEYS.ASSETS, filters],
+//     queryFn: ({ pageParam = 0 }) => getAssets(pageParam, filters),
+//     getNextPageParam: (lastPage, pages) => {
+//       return lastPage.hasMore ? pages.length : undefined;
+//     },
+//     initialPageParam: 0,
+//   });
+// };
 
 export const useAsset = (id: string) => {
   return useInfiniteQuery({
@@ -67,29 +67,29 @@ export const useUploadAssets = () => {
   });
 };
 
-export const useDownloadAsset = () => {
-  const dispatch = useAppDispatch();
+// export const useDownloadAsset = () => {
+//   const dispatch = useAppDispatch();
 
-  return useMutation({
-    mutationFn: downloadAsset,
-    onSuccess: () => {
-      dispatch(
-        addToast({
-          type: "success",
-          title: "Download Started",
-          message: "Your download will begin shortly.",
-        })
-      );
-    },
-    onError: (error: any) => {
-      dispatch(
-        addToast({
-          type: "error",
-          title: "Download Failed",
-          message:
-            error.message || "Failed to download asset. Please try again.",
-        })
-      );
-    },
-  });
-};
+//   return useMutation({
+//     mutationFn: downloadAsset,
+//     onSuccess: () => {
+//       dispatch(
+//         addToast({
+//           type: "success",
+//           title: "Download Started",
+//           message: "Your download will begin shortly.",
+//         })
+//       );
+//     },
+//     onError: (error: any) => {
+//       dispatch(
+//         addToast({
+//           type: "error",
+//           title: "Download Failed",
+//           message:
+//             error.message || "Failed to download asset. Please try again.",
+//         })
+//       );
+//     },
+//   });
+// };

@@ -20,13 +20,22 @@ const AssetPreview: React.FC<AssetPreviewProps> = ({
     onShare
 }) => {
     if (!asset) return null;
+    console.log("asset", asset)
 
     const renderPreview = () => {
-        switch (asset.type) {
+        switch (asset.category) {
             case 'image':
                 return (
                     <img
-                        src={asset.url}
+                        src={asset.downloadUrl?.original}
+                        alt={asset.filename}
+                        className="max-w-full max-h-96 object-contain mx-auto"
+                    />
+                );
+            case 'document':
+                return (
+                    <img
+                        src={asset.downloadUrl?.thumbnail}
                         alt={asset.filename}
                         className="max-w-full max-h-96 object-contain mx-auto"
                     />
@@ -34,12 +43,13 @@ const AssetPreview: React.FC<AssetPreviewProps> = ({
             case 'video':
                 return (
                     <video
-                        src={asset.url}
+                        src={asset.downloadUrl?.original}
                         controls
                         className="max-w-full max-h-96 mx-auto"
                     >
                         Your browser does not support video playback.
                     </video>
+
                 );
             case 'audio':
                 return (
@@ -69,18 +79,25 @@ const AssetPreview: React.FC<AssetPreviewProps> = ({
                     {renderPreview()}
                 </div>
 
+
+
                 {/* File Info */}
                 <div className="border-t pt-4">
                     <h3 className="font-medium text-gray-900 mb-2">{asset.originalName}</h3>
+                    {/* uploaded by */}
+                    <h3 className=" text-gray-900 mb-2">
+                        <span className='text-sm'>by : </span>
+                        <span className='text-sm'>{asset.uploader.email}</span>
+                    </h3>
                     <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
                         <div>
-                            <span className="font-medium">Type:</span> {asset.type}
+                            <span className="font-medium">Type:</span> {asset.category}
                         </div>
                         <div>
                             <span className="font-medium">Size:</span> {(asset.size / 1024 / 1024).toFixed(2)} MB
                         </div>
                         <div>
-                            <span className="font-medium">Downloads:</span> {asset.downloads}
+                            <span className="font-medium">Downloads:</span> {asset.downloadCount}
                         </div>
                         <div>
                             <span className="font-medium">Uploaded:</span> {new Date(asset.createdAt).toLocaleDateString()}

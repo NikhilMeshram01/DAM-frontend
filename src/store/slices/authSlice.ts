@@ -28,13 +28,22 @@ export const registerUser = createAsyncThunk(
     email,
     password,
     confirmPassword,
+    team,
   }: {
     email: string;
     password: string;
     name: string;
     confirmPassword: string;
+    team: string;
   }) => {
-    const response = await register(name, email, password, confirmPassword);
+    console.log("team", team);
+    const response = await register(
+      name,
+      email,
+      password,
+      confirmPassword,
+      team
+    );
     return response;
   }
 );
